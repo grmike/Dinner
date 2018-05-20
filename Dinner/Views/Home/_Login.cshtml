@@ -1,0 +1,15 @@
+﻿@model LoginViewModel
+@using Dinner.Models.Home
+@{
+    Layout = null;
+}
+
+<form method="post" action="~/Home/Login/">
+    <label>Имя</label>
+    @Html.TextBoxFor(m => m.Login)
+    <label>Пароль</label>
+    @Html.PasswordFor(m => m.Password)
+    <button type="submit">Войти</button>
+</form>
+
+

@@ -1,0 +1,13 @@
+﻿@model PaymentViewModel
+@using Dinner.Models.Home
+
+@{
+    Layout = null;
+}
+
+<form method="post" action="~/Home/AddPayment/">
+    @Html.TextBoxFor(m => m.Amount)
+    <button type="submit">Добавить</button>
+</form>
+
+

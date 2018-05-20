@@ -1,0 +1,15 @@
+﻿@using Dinner.Models.Home
+
+@{
+    ViewBag.Title = "Обед";
+}
+
+<div class="row">
+    <div id="js__first_amount_container" class="col-md-4">
+        <h2>Вход</h2>
+        <p>
+            @Html.ValidationSummary(true)
+            @Html.Partial("_Login", new LoginViewModel())
+        </p>
+    </div>
+</div>

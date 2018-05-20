@@ -1,0 +1,119 @@
+﻿@model PaymentsListViewModel
+@using Dinner.Models.Home
+
+@{
+    ViewBag.Title = "Обед";
+}
+
+
+<div class="jumbotron">
+    <table class="table" style="max-height: 500px; overflow-y: auto;">
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@(item.Date)</td>
+                    <td>@item.Payer.Name</td>
+                    <td>@item.PaymentsText</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="row">
+    <div id="js__first_amount_container" class="col-md-4">
+        <h2>Добавить платеж</h2>
+        <p>
+            @Html.TextBox("js__first_amount")
+            <button id="js__first_amount_btn" type="button">Добавить</button>
+        </p>
+    </div>
+    <div id="js__detailed_amount" class="col-md-4 hidden">
+        <h2>Добавить платеж</h2>
+
+        <form id="js__form" method="post" action="~/Home/AddPayment/">
+            <table id="js__form_table">
+                <tbody></tbody>
+            </table>
+            <input id="js__form_amount" name="Data" type="hidden" />
+            <button id="js__detailed_amount_btn" type="button">Добавить</button>
+            <button id="js__detailed_cancel_btn" type="button">Отмена</button>
+        </form>
+    </div>
+    <div class="col-md-4">
+        <h2>Долги</h2>
+        @foreach (var debt in Model.Debts)
+        {
+            <p>
+                @debt.From.Name должен @debt.To.Name = @debt.Amount
+            </p>
+        }
+
+    </div>
+</div>
+
+
+@section scripts
+{
+    <script type="text/javascript">
+
+        var users = [@Html.Raw(string.Join(", ", Model.Users.Select(usr => $"{{ 'id': {usr.Id}, 'name': '{usr.Name}' }}")))];
+
+
+        $(document).ready(function () {
+            $('#js__first_amount_btn').click(function () {
+                $('#js__amount').val($('#js__first_amount').val());
+                
+                var amount = parseInt($('#js__first_amount').val());
+                if (Number.isNaN(amount)) {
+                    alert('Неверная сумма платежа');
+                    return;
+                }
+
+                makeForm(amount);
+                $('#js__first_amount_container').addClass('hidden');
+                $('#js__detailed_amount').removeClass('hidden');
+            });
+
+
+            $('#js__detailed_amount_btn').click(function () {
+
+                var answer = [];
+
+                $('#js__form_table input').each(function () {
+
+                    answer.push({
+                        id: $(this).data('id'),
+                        sum: $(this).val()
+                    });
+                });
+
+                $('#js__form_amount').val(JSON.stringify(answer));
+                $('#js__form').submit();
+            });
+
+
+            $('#js__detailed_cancel_btn').click(function () {
+                $('#js__detailed_amount').addClass('hidden');
+                $('#js__form_table tbody').empty();
+                $('#js__first_amount_container').removeClass('hidden');
+            });
+        });
+
+        function makeForm(sum)
+        {
+            var amount = sum / users.length;
+            var body = $('#js__form_table tbody')
+            for (var i = 0; i < users.length; i++)
+            {
+                body.append('<tr><td>' + users[i].name + '</td><td><input data-id="' + users[i].id + '" value="' + amount + '"></input></td><td><button type="button">X</button></td></tr>');
+            }
+
+            $('#js__form_table button').click(function () {
+                $(this).parent().parent().remove();
+            });
+        }
+
+    </script>
+}
