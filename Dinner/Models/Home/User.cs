@@ -10,5 +10,6 @@ namespace Dinner.Models.Home
         public int Id;
         public string Name;
         public string Password;
+        public decimal Total;
     }
 }

@@ -16,7 +16,14 @@ namespace Dinner.Controllers
         [Authorize]
         public ActionResult Index()
         {
-            return View(new PaymentsListViewModel { Items = Service.Payments(), Debts = Service.GetDebts(), Users = Service.GetUsers().ToList() });
+            var model = new PaymentsListViewModel {
+                Items = Service.Payments(),
+                Debts = null,
+                Users = Service.GetUsers().ToList()
+            };
+
+            Service.CalculateStat();
+            return View(model);
         }
 
         [HttpPost]

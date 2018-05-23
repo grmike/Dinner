@@ -43,13 +43,18 @@
     </div>
     <div class="col-md-4">
         <h2>Долги</h2>
-        @foreach (var debt in Model.Debts)
+        @*@foreach (var debt in Model.Debts)
         {
             <p>
                 @debt.From.Name должен @debt.To.Name = @debt.Amount
             </p>
+        }*@
+        @foreach (var usr in Model.Users)
+        {
+            <p>
+                @usr.Name = @usr.Total
+            </p>
         }
-
     </div>
 </div>
 

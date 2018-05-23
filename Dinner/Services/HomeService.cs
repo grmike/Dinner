@@ -96,7 +96,7 @@ namespace Dinner.Services
 
             return result;
         }
-
+        
 
         public decimal CalcDebt(User from, User to)
         {
@@ -105,6 +105,25 @@ namespace Dinner.Services
             return fpart - spart;
         }
 
+
+
+        public void CalculateStat()
+        {
+            foreach (var usr in GetUsers())
+                usr.Total = 0;
+
+            foreach (var pay in Payments())
+            {
+                foreach (var item in pay.Payments)
+                {
+                    if (item.User.Id == pay.Payer.Id)
+                        continue;
+
+                    item.User.Total -= item.Amount;
+                    pay.Payer.Total += item.Amount;
+                }
+            }
+        }
 
 
         public List<PaymentDetail> ToPaymentDetails(List<SavePayment> savePayments)
