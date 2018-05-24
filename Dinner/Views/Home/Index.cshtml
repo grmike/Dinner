@@ -9,7 +9,7 @@
 <div class="jumbotron">
     <table class="table" style="max-height: 500px; overflow-y: auto;">
         <tbody>
-            @foreach (var item in Model.Items)
+            @foreach (var item in Model.Items.Take(3))
             {
                 <tr>
                     <td>@(item.Date)</td>

@@ -1,0 +1,40 @@
+﻿@model PaymentsListViewModel
+@using Dinner.Models.Home
+
+@{
+    ViewBag.Title = "Платежи";
+}
+
+
+<div class="jumbotron">
+    <table class="table" style="max-height: 500px; overflow-y: auto;">
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@(item.Date)</td>
+                    <td>@item.Payer.Name</td>
+                    <td>@item.PaymentsText</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Долги</h2>
+        @*@foreach (var debt in Model.Debts)
+            {
+                <p>
+                    @debt.From.Name должен @debt.To.Name = @debt.Amount
+                </p>
+            }*@
+        @foreach (var usr in Model.Users)
+        {
+            <p>
+                @usr.Name = @usr.Total
+            </p>
+        }
+    </div>
+</div>

@@ -1,7 +1,8 @@
 bin/
 obj/
 packages/
-
+.vs/
+*.user
 
 #custom
 Dinner/App_Data/*.*

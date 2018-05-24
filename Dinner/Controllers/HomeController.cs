@@ -50,9 +50,22 @@ namespace Dinner.Controllers
             if (user == null)
                 return View(model);
 
-            FormsAuthentication.SetAuthCookie(user.Name, true);
+            FormsAuthentication.SetAuthCookie(user.Name, false);
 
             return RedirectToAction("Index");
+        }
+
+        public ActionResult Payments()
+        {
+            var model = new PaymentsListViewModel
+            {
+                Items = Service.Payments(),
+                Debts = null,
+                Users = Service.GetUsers().ToList()
+            };
+
+            Service.CalculateStat();
+            return View(model);
         }
 
         public ActionResult About()

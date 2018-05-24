@@ -1,6 +1,7 @@
 ﻿using Dinner.Models.Home;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,24 +12,31 @@ namespace Dinner.Services
 {
     public class HomeService
     {
-        List<PaymentDetail> _payments;
+        ConcurrentBag<PaymentDetail> _payments;
         User[] _users;
+        readonly object _lockObject = new object();
 
-        public List<PaymentDetail> Payments()
+        public IEnumerable<PaymentDetail> Payments()
         {
             if (_payments != null)
-                return _payments;
+                return _payments.OrderByDescending(it => it.Date);
 
-            List<SavePayment> savePayments;
-            var paymentspath = HostingEnvironment.MapPath("~/App_Data/payments.json");
-            if (!File.Exists(paymentspath))
+            lock (_lockObject)
             {
-                savePayments = new List<SavePayment>();
-                File.WriteAllText(paymentspath, JsonConvert.SerializeObject(savePayments));
-            }
+                if (_payments != null)
+                    return _payments.OrderByDescending(it => it.Date);
 
-            savePayments = JsonConvert.DeserializeObject<List<SavePayment>>(File.ReadAllText(paymentspath));
-            return _payments = ToPaymentDetails(savePayments);
+                List<SavePayment> savePayments;
+                var paymentspath = HostingEnvironment.MapPath("~/App_Data/payments.json");
+                if (!File.Exists(paymentspath))
+                {
+                    savePayments = new List<SavePayment>();
+                    File.WriteAllText(paymentspath, JsonConvert.SerializeObject(savePayments));
+                }
+
+                savePayments = JsonConvert.DeserializeObject<List<SavePayment>>(File.ReadAllText(paymentspath));
+                return _payments = new ConcurrentBag<PaymentDetail>(ToPaymentDetails(savePayments));
+            }
         }
 
         public void AddPayment(string currentUserName, PaymentViewModel payment)
@@ -41,8 +49,11 @@ namespace Dinner.Services
                 Payments = pays.Select(it => new UserPayment { User = GetUserById(it.id), Amount = it.sum } ).ToArray()
             });
 
-            var paymentspath = HostingEnvironment.MapPath("~/App_Data/payments.json");
-            File.WriteAllText(paymentspath, JsonConvert.SerializeObject(ToSavePayments(_payments)));
+            lock (_lockObject)
+            {
+                var paymentspath = HostingEnvironment.MapPath("~/App_Data/payments.json");
+                File.WriteAllText(paymentspath, JsonConvert.SerializeObject(ToSavePayments(_payments)));
+            }
         }
 
         public User[] GetUsers()
@@ -141,7 +152,7 @@ namespace Dinner.Services
         }
 
 
-        public List<SavePayment> ToSavePayments(List<PaymentDetail> payments)
+        public List<SavePayment> ToSavePayments(ConcurrentBag<PaymentDetail> payments)
         {
             return payments.Select(pay => new SavePayment
             {
@@ -152,7 +163,7 @@ namespace Dinner.Services
                     userId = it.User.Id,
                     amount = it.Amount
                 }).ToArray()
-            }).ToList();
+            }).OrderBy(it => it.date).ToList();
         }
     }
 }

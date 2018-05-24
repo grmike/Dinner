@@ -7,7 +7,7 @@ namespace Dinner.Models.Home
 {
     public class PaymentsListViewModel
     {
-        public List<PaymentDetail> Items;
+        public IEnumerable<PaymentDetail> Items;
         public List<Debt> Debts;
         public List<User> Users;
     }
