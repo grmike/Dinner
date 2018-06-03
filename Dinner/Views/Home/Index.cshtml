@@ -24,24 +24,27 @@
 <div class="row">
     <div id="js__first_amount_container" class="col-md-4">
         <h2>Добавить платеж</h2>
-        <p>
-            @Html.TextBox("js__first_amount")
-            <button id="js__first_amount_btn" type="button">Добавить</button>
-        </p>
+        <div class="form-group">
+        </div>
+        <div class="form-inline">
+            @Html.TextBox("js__first_amount", "", new { @class = "form-control", style="width: 150px;" })
+            <button id="js__first_amount_btn" class="btn btn-primary" type="button">Добавить</button>
+        </div>
     </div>
     <div id="js__detailed_amount" class="col-md-4 hidden">
         <h2>Добавить платеж</h2>
 
-        <form id="js__form" method="post" action="~/Home/AddPayment/">
-            <table id="js__form_table">
-                <tbody></tbody>
-            </table>
+        <form id="js__form" class="form-horizontal" method="post" action="~/Home/AddPayment/">
+            <div id="js__form_payments_container">
+
+            </div>
+
             <input id="js__form_amount" name="Data" type="hidden" />
-            <button id="js__detailed_amount_btn" type="button">Добавить</button>
-            <button id="js__detailed_cancel_btn" type="button">Отмена</button>
+            <button id="js__detailed_amount_btn" class="btn btn-primary" type="button">Добавить</button>
+            <button id="js__detailed_cancel_btn" class="btn btn-default" type="button">Отмена</button>
         </form>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-4 text-center">
         <h2>Долги</h2>
         @*@foreach (var debt in Model.Debts)
         {
@@ -86,7 +89,7 @@
 
                 var answer = [];
 
-                $('#js__form_table input').each(function () {
+                $('#js__form_payments_container input').each(function () {
 
                     answer.push({
                         id: $(this).data('id'),
@@ -101,7 +104,7 @@
 
             $('#js__detailed_cancel_btn').click(function () {
                 $('#js__detailed_amount').addClass('hidden');
-                $('#js__form_table tbody').empty();
+                $('#js__form_payments_container').empty();
                 $('#js__first_amount_container').removeClass('hidden');
             });
         });
@@ -109,14 +112,24 @@
         function makeForm(sum)
         {
             var amount = sum / users.length;
-            var body = $('#js__form_table tbody')
-            for (var i = 0; i < users.length; i++)
-            {
-                body.append('<tr><td>' + users[i].name + '</td><td><input data-id="' + users[i].id + '" value="' + amount + '"></input></td><td><button type="button">X</button></td></tr>');
+
+            var body = $('#js__form_payments_container')
+            for (var i = 0; i < users.length; i++) {
+                body.append('<div class="form-group"><label class="col-sm-3 control-label">' + users[i].name + '</label>'
+                    + '<div class="col-sm-7"><input type="text" class="form-control" data-id="' + users[i].id + '" value="' + amount + '" /></div>'
+                    + '<div class="col-sm-2"><button data-sum="' + sum + '" class="btn btn-default" type="button"><span class="glyphicon glyphicon-remove"></span></button></div></div>');
             }
 
-            $('#js__form_table button').click(function () {
+            $('#js__form_payments_container button').click(function () {
                 $(this).parent().parent().remove();
+
+                var sum = $(this).data('sum');
+                var inputs = $('#js__form_payments_container input');
+                var amount = sum / inputs.length;
+
+                inputs.each(function (key, value) {
+                    $(value).val(amount.toFixed(2));
+                });
             });
         }
 
