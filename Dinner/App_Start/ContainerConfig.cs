@@ -26,6 +26,7 @@ namespace Dinner.App_Start
             builder.RegisterSource(new ViewRegistrationSource());
 
             //builder.RegisterInstance(new HomeService()).As<HomeService>().SingleInstance();
+            builder.RegisterType<AuthService>().SingleInstance();
             builder.RegisterType<HomeService>().SingleInstance();
 
             var container = builder.Build();

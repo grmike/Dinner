@@ -39,14 +39,15 @@ namespace Dinner.Services
             }
         }
 
-        public void AddPayment(string currentUserName, PaymentViewModel payment)
+        public void AddPayment(int currentUserId, PaymentViewModel payment)
         {
             var pays = JsonConvert.DeserializeObject<List<FormPayment>>(payment.Data);
 
-            _payments.Add(new PaymentDetail {
+            _payments.Add(new PaymentDetail
+            {
                 Date = DateTime.Now,
-                Payer = GetCurrentUser(currentUserName),
-                Payments = pays.Select(it => new UserPayment { User = GetUserById(it.id), Amount = it.sum } ).ToArray()
+                Payer = GetUserById(currentUserId),
+                Payments = pays.Select(it => new UserPayment { User = GetUserById(it.id), Amount = it.sum }).ToArray()
             });
 
             lock (_lockObject)
@@ -55,6 +56,23 @@ namespace Dinner.Services
                 File.WriteAllText(paymentspath, JsonConvert.SerializeObject(ToSavePayments(_payments)));
             }
         }
+
+        //public void AddPayment(string currentUserName, PaymentViewModel payment)
+        //{
+        //    var pays = JsonConvert.DeserializeObject<List<FormPayment>>(payment.Data);
+
+        //    _payments.Add(new PaymentDetail {
+        //        Date = DateTime.Now,
+        //        Payer = GetCurrentUser(currentUserName),
+        //        Payments = pays.Select(it => new UserPayment { User = GetUserById(it.id), Amount = it.sum } ).ToArray()
+        //    });
+
+        //    lock (_lockObject)
+        //    {
+        //        var paymentspath = HostingEnvironment.MapPath("~/App_Data/payments.json");
+        //        File.WriteAllText(paymentspath, JsonConvert.SerializeObject(ToSavePayments(_payments)));
+        //    }
+        //}
 
         public User[] GetUsers()
         {

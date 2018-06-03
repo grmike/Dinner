@@ -1,4 +1,5 @@
-﻿using Dinner.Models.Home;
+﻿using Dinner.Global.Attributes;
+using Dinner.Models.Home;
 using Dinner.Services;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,9 @@ namespace Dinner.Controllers
     public class HomeController : Controller
     {
         public HomeService Service { get; set; }
+        public AuthService AuthService { get; set; }
 
-        [Authorize]
+        [CustomAuthorize]
         public ActionResult Index()
         {
             var model = new PaymentsListViewModel {
@@ -27,10 +29,11 @@ namespace Dinner.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [CustomAuthorize]
         public ActionResult AddPayment(PaymentViewModel payment)
         {
-            Service.AddPayment(System.Web.HttpContext.Current.User.Identity.Name, payment);
+            int userId = (int)System.Web.HttpContext.Current.Items["UserId"];
+            Service.AddPayment(userId, payment);
             return RedirectToAction("Index");
         }
 
@@ -50,7 +53,18 @@ namespace Dinner.Controllers
             if (user == null)
                 return View(model);
 
-            FormsAuthentication.SetAuthCookie(user.Name, false);
+            var token = AuthService.Authorize(user.Id);
+            //FormsAuthentication.SetAuthCookie(user.Name, false);
+            Response.Cookies.Add(new HttpCookie("DinnerProAuth", token)
+            {
+                Path = "/",
+#if (!DEBUG)
+                Secure = true,
+#endif
+                HttpOnly = true,
+                Domain = Request.Url.Host,
+                Expires = DateTime.Now.AddDays(7)
+            });
 
             return RedirectToAction("Index");
         }
